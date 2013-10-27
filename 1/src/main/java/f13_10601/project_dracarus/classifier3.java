@@ -79,8 +79,8 @@ public class classifier3 {
 
   public void evaluate() {
     try {
-      trainData.setClassIndex(trainData.numAttributes() - 1);
-      testData.setClassIndex(trainData.numAttributes() - 1);
+      trainData.setClassIndex(trainData.numAttributes()-1);
+      testData.setClassIndex(trainData.numAttributes()-1);
 
       filter = new StringToWordVector();
       filter.setAttributeIndices("last");
