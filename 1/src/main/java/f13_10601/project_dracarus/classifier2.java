@@ -14,8 +14,9 @@ import weka.classifiers.Evaluation;
 
 import java.util.Random;
 
-import weka.classifiers.bayes.BayesianLogisticRegression;
+
 import weka.classifiers.meta.FilteredClassifier;
+import weka.classifiers.trees.J48graft;
 import weka.core.converters.ArffLoader.ArffReader;
 
 import java.io.*;
@@ -84,7 +85,7 @@ public class classifier2
 	                        filter.setAttributeIndices("last");
 	                        classifier = new FilteredClassifier();
 	                        classifier.setFilter(filter);
-	                        classifier.setClassifier(new MLPClassifier());
+	                        classifier.setClassifier(new J48graft());
 	                        Evaluation eval = new Evaluation(trainData);
 	                        eval.crossValidateModel(classifier, trainData, 4, new Random(1));
 	                        System.out.println(eval.toSummaryString());
@@ -125,7 +126,7 @@ public class classifier2
 									e.printStackTrace();
 								}    // create new test set
 	                			 // train classifier
-	                			 Classifier cls = new MLPClassifier();
+	                			 Classifier cls = new J48graft();
 	                			 try {
 									cls.buildClassifier(newTrain);
 								} catch (Exception e) {
@@ -178,8 +179,8 @@ public class classifier2
 	                classifier2 learner;
 	                learner = new classifier2();
 
-                    learner.loadTrainDataset("/home/saloni/git/dracarus/1/dataout/anneal_train.arff");
-                    learner.loadTestDataset("/home/saloni/git/dracarus/1/dataout/anneal_test.arff");
+                    learner.loadTrainDataset("C:/Users/user/git/dracarus/1/dataout/anneal_train.arff");
+                    learner.loadTestDataset("C:/Users/user/git/dracarus/1/dataout/anneal_test.arff");
                     // Evaluation must be done before training
                     // More info in: http://weka.wikispaces.com/Use+WEKA+in+your+Java+code
                     learner.evaluate();

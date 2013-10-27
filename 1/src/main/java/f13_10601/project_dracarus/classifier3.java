@@ -15,6 +15,7 @@ import weka.classifiers.Evaluation;
 import java.util.Random;
 
 import weka.classifiers.meta.AdaBoostM1;
+import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.core.converters.ArffLoader.ArffReader;
 
@@ -84,7 +85,7 @@ public class classifier3
 	                        filter.setAttributeIndices("last");
 	                        classifier = new FilteredClassifier();
 	                        classifier.setFilter(filter);
-	                        classifier.setClassifier(new AdaBoostM1());
+	                        classifier.setClassifier(new Decorate());
 	                        Evaluation eval = new Evaluation(trainData);
 	                        eval.crossValidateModel(classifier, trainData, 4, new Random(1));
 	                        System.out.println(eval.toSummaryString());
@@ -125,7 +126,7 @@ public class classifier3
 									e.printStackTrace();
 								}    // create new test set
 	                			 // train classifier
-	                			 Classifier cls = new AdaBoostM1();
+	                			 Classifier cls = new Decorate();
 	                			 try {
 									cls.buildClassifier(newTrain);
 								} catch (Exception e) {
@@ -178,8 +179,8 @@ public class classifier3
 	                classifier3 learner;
 	                learner = new classifier3();
 
-                    learner.loadTrainDataset("/home/saloni/git/dracarus/1/dataout/anneal_train.arff");
-                    learner.loadTestDataset("/home/saloni/git/dracarus/1/dataout/anneal_test.arff");
+                    learner.loadTrainDataset("C:/Users/user/git/dracarus/1/dataout/anneal_train.arff");
+                    learner.loadTestDataset("C:/Users/user/git/dracarus/1/dataout/anneal_test.arff");
                     // Evaluation must be done before training
                     // More info in: http://weka.wikispaces.com/Use+WEKA+in+your+Java+code
                     learner.evaluate();
