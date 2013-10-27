@@ -10,6 +10,8 @@ import weka.filters.unsupervised.attribute.Standardize;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 import weka.classifiers.Evaluation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import weka.classifiers.meta.MultiClassClassifier;
@@ -99,7 +101,7 @@ public class classifier1 {
   /**
    * This method trains the classifier on the loaded dataset.
    */
-  public void learn() {
+  public double learn() {
     Instances train = trainData; // from somewhere
     Instances test = testData; // from somewhere
     Standardize filter = new Standardize();
@@ -148,7 +150,7 @@ public class classifier1 {
     }
     System.out.println(eval.toSummaryString("\nResults\n======\n", false)); // Uncomment to see the
                                                                             // classifier
-
+    return eval.errorRate();
   }
 
   /**
@@ -173,7 +175,7 @@ public class classifier1 {
    * @param args
    *          Command-line arguments: fileData and fileModel.
    */
-  public static void main(String[] args) {
+  public static List<Double> main(String[] args) {
 
     classifier1 learner;
     learner = new classifier1();
@@ -182,6 +184,7 @@ public class classifier1 {
     // System.out.println(files.length);
 
     int limit = (files.length);
+    List<Double> errorList = new ArrayList<Double>();
     for (int i = 2; i < limit; i = i + 2) {
       // System.out.println(files[i].getAbsolutePath());
       learner.loadTrainDataset(files[i].getAbsolutePath());
@@ -190,13 +193,15 @@ public class classifier1 {
       // Evaluation must be done before training
       // More info in: http://weka.wikispaces.com/Use+WEKA+in+your+Java+code
       learner.evaluate();
-      learner.learn();
+      double error = learner.learn();
+      errorList.add(error);
+      
       String folderName = ("C:/Users/user/git/dracarus/1/model/"
               + files[i].getName().toString().replace("_test.arff", "") + "/");
       learner.saveModel(folderName + "ADTree_"
               + files[i].getName().toString().replace("_test.arff", "") + ".model");
     }
-
+    return errorList;
   }
 
 }
