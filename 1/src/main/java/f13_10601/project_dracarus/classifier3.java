@@ -14,7 +14,6 @@ import weka.classifiers.Evaluation;
 
 import java.util.Random;
 
-import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.core.converters.ArffLoader.ArffReader;

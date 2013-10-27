@@ -9,13 +9,11 @@ import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Standardize;
 import weka.filters.unsupervised.attribute.StringToWordVector;
-import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 
 import java.util.Random;
 
-import weka.classifiers.bayes.BayesianLogisticRegression;
-import weka.classifiers.meta.FilteredClassifier;
+import weka.classifiers.meta.MultiClassClassifier;
 import weka.classifiers.trees.ADTree;
 import weka.core.converters.ArffLoader.ArffReader;
 
@@ -46,7 +44,7 @@ public class classifier1
 	        /**
 	         * Object that stores the classifier
 	         */
-	        FilteredClassifier classifier;
+	        MultiClassClassifier classifier;
 	                
 	        /**
 	         * This method loads a dataset in ARFF format. If the file does not exist, or
@@ -83,8 +81,7 @@ public class classifier1
 	                        trainData.setClassIndex(0);
 	                        filter = new StringToWordVector();
 	                        filter.setAttributeIndices("last");
-	                        classifier = new FilteredClassifier();
-	                        classifier.setFilter(filter);
+	                        classifier =  new MultiClassClassifier(); 
 	                        classifier.setClassifier(new ADTree());
 	                        Evaluation eval = new Evaluation(trainData);
 	                        eval.crossValidateModel(classifier, trainData, 4, new Random(1));
@@ -126,7 +123,8 @@ public class classifier1
 									e.printStackTrace();
 								}    // create new test set
 	                			 // train classifier
-	                			 Classifier cls = new ADTree();
+								         MultiClassClassifier cls = new MultiClassClassifier();
+	                			 cls.setClassifier(new ADTree());
 	                			 try {
 									cls.buildClassifier(newTrain);
 								} catch (Exception e) {
