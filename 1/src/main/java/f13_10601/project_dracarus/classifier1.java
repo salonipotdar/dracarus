@@ -1,17 +1,23 @@
 package f13_10601.project_dracarus;
 
+
 /**
  * Hello world!
  *
  */
 import weka.core.Instances;
 import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Standardize;
 import weka.filters.unsupervised.attribute.StringToWordVector;
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+
 import java.util.Random;
+
 import weka.classifiers.bayes.BayesianLogisticRegression;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.core.converters.ArffLoader.ArffReader;
+
 import java.io.*;
 
 /**
@@ -22,17 +28,20 @@ import java.io.*;
 * @see MyFilteredClassifier
 */
 
-public class App 
+public class classifier1 
 {
 
 	        /**
-	         * Object that stores training data.
+	         * Objects that stores training and testing data.
 	         */
 	        Instances trainData;
+	        Instances testData;
+
 	        /**
 	         * Object that stores the filter
 	         */
 	        StringToWordVector filter;
+
 	        /**
 	         * Object that stores the classifier
 	         */
@@ -43,24 +52,31 @@ public class App
 	         * it has a wrong format, the attribute trainData is null.
 	         * @param fileName The name of the file that stores the dataset.
 	         */
-	        public void loadDataset(String fileName) {
+	        public void loadTrainDataset(String fileName) {
 	                try {
 	                        BufferedReader reader = new BufferedReader(new FileReader(fileName));
 	                        ArffReader arff = new ArffReader(reader);
 	                        trainData = arff.getData();
-	                        System.out.println("===== Loaded dataset: " + fileName + " =====");
+	                        System.out.println("===== Loaded train dataset: " + fileName + " =====");
 	                        reader.close();
 	                }
 	                catch (IOException e) {
-	                        System.out.println("Problem found when reading: " + fileName);
+	                        System.out.println("Problem found when reading train data: " + fileName);
 	                }
 	        }
-	        
-	        /**
-	         * This method evaluates the classifier. As recommended by WEKA documentation,
-	         * the classifier is defined but not trained yet. Evaluation of previously
-	         * trained classifiers can lead to unexpected results.
-	         */
+	        public void loadTestDataset(String fileName) {
+                try {
+                        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+                        ArffReader arff = new ArffReader(reader);
+                        testData = arff.getData();
+                        System.out.println("===== Loaded test dataset: " + fileName + " =====");
+                        reader.close();
+                }
+                catch (IOException e) {
+                        System.out.println("Problem found when reading test data: " + fileName);
+                }
+	        }
+
 	        public void evaluate() {
 	                try {
 	                        trainData.setClassIndex(0);
@@ -74,6 +90,7 @@ public class App
 	                        System.out.println(eval.toSummaryString());
 	                        System.out.println(eval.toClassDetailsString());
 	                        System.out.println("===== Evaluating on filtered (training) dataset done =====");
+	                        
 	                }
 	                catch (Exception e) {
 	                        System.out.println("Problem found when evaluating");
@@ -84,21 +101,55 @@ public class App
 	         * This method trains the classifier on the loaded dataset.
 	         */
 	        public void learn() {
-	                try {
-	                        trainData.setClassIndex(0);
-	                        filter = new StringToWordVector();
-	                        filter.setAttributeIndices("last");
-	                        classifier = new FilteredClassifier();
-	                        classifier.setFilter(filter);
-	                        classifier.setClassifier(new BayesianLogisticRegression());
-	                        classifier.buildClassifier(trainData);
-	                        // Uncomment to see the classifier
-	                        // System.out.println(classifier);
-	                        System.out.println("===== Training on filtered (training) dataset done =====");
-	                }
-	                catch (Exception e) {
-	                        System.out.println("Problem found when training");
-	                }
+	                 			 Instances train = trainData;   // from somewhere
+	                			 Instances test = testData;    // from somewhere
+	                			 Standardize filter = new Standardize();
+	                			 try {
+									filter.setInputFormat(train);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}  // initializing the filter once with training set
+	                			 Instances newTrain = null;
+								try {
+									newTrain = Filter.useFilter(train, filter);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}  // configures the Filter based on train instances and returns filtered instances
+	                			 Instances newTest = null;
+								try {
+									newTest = Filter.useFilter(test, filter);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}    // create new test set
+	                			 // train classifier
+	                			 Classifier cls = new BayesianLogisticRegression();
+	                			 try {
+									cls.buildClassifier(newTrain);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+	                			 // evaluate classifier and print some statistics
+	                			 Evaluation eval = null;
+								try {
+									eval = new Evaluation(newTrain);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+	                			 try {
+									eval.evaluateModel(cls, newTest);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+	                			 System.out.println(eval.toSummaryString("\nResults\n======\n", false));	                        // Uncomment to see the classifier
+	                        
+	                
+	                
 	        }
 	        
 	        /**
@@ -124,20 +175,17 @@ public class App
 	         */
 	        public static void main (String[] args) {
 	        
-	                App learner;
-	                //if (args.length < 2)
-	                //        System.out.println("Usage: java MyLearner <fileData> <fileModel>");
-	                //else {
-	                        learner = new App();
-	                //        learner.loadDataset(args[0]);
-	                learner.loadDataset("/home/saloni/git/dracarus/1/dataout/anneal_train.arff");
-	                        // Evaluation must be done before training
-	                        // More info in: http://weka.wikispaces.com/Use+WEKA+in+your+Java+code
-	                        learner.evaluate();
-	                        learner.learn();
-	               learner.saveModel("ddd");
-	               //         learner.saveModel(args[1]);
-	               // }
+	                classifier1 learner;
+	                learner = new classifier1();
+
+                    learner.loadTrainDataset("/home/saloni/git/dracarus/1/dataout/anneal_train.arff");
+                    learner.loadTestDataset("/home/saloni/git/dracarus/1/dataout/anneal_test.arff");
+                    // Evaluation must be done before training
+                    // More info in: http://weka.wikispaces.com/Use+WEKA+in+your+Java+code
+                    learner.evaluate();
+                    learner.learn();
+                    learner.saveModel("ddd");
+	               
 	        }
 	        
 }
