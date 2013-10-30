@@ -166,12 +166,8 @@ public class App {
           e1.printStackTrace();
         }
 
-        // folderName = ("./model/"+ files[i].getName().toString().replace("_test.arff", "") + "/");
         folderName = ("./model/");
         try {
-          // weka.core.SerializationHelper.write(folderName + "ADTree_"+
-          // files[i].getName().toString().replace("_test.arff", "") + ".model", cls1.classifier1);
-          // Classifier cls = new ADTree();
           System.out.println("=============== Best Error: " + error1
                   + " from ADTree ===============");
           weka.core.SerializationHelper.write(
@@ -181,9 +177,6 @@ public class App {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
-        // SerializedClassifier scls1 = new SerializedClassifier();
-        // scls1.setModelFile(new File(folderName +
-        // files[i].getName().toString().replace("_test.arff", "") + ".model"));
 
       } else if (error2 == least_error) {
         MultiClassClassifier cls = new MultiClassClassifier();
@@ -208,11 +201,8 @@ public class App {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
-        // folderName = ("./model/"+ files[i].getName().toString().replace("_test.arff", "") + "/");
         folderName = ("./model/");
         try {
-          // weka.core.SerializationHelper.write(folderName + "J48graft_"+
-          // files[i].getName().toString().replace("_test.arff", "") + ".model", cls2.classifier2);
           System.out.println("=============== Best Error: " + error2
                   + " from J48graft ===============");
           weka.core.SerializationHelper.write(
@@ -245,12 +235,8 @@ public class App {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
-        // folderName = ("./model/"+ files[i].getName().toString().replace("_test.arff", "") + "/");
         folderName = ("./model/");
         try {
-          // weka.core.SerializationHelper.write(folderName + "Decorate_"+
-          // files[i].getName().toString().replace("_test.arff", "") + ".model", cls3.classifier3);
-          // Classifier cls = new Decorate();
           System.out.println("=============== Best Error: " + error3
                   + " from Decorate ===============");
           weka.core.SerializationHelper.write(
