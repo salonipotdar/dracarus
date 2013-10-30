@@ -130,7 +130,7 @@ public class App {
       }
 
       if (Double.isNaN(error3)) {
-        error3 = 100.0;
+        error3 = 1.0;
       }
 
       least_error = Math.min(error1, Math.min(error2, error3));
@@ -169,7 +169,7 @@ public class App {
         folderName = ("./model/");
         try {
           System.out.println("=============== Best Error: " + error1
-                  + " from ADTree ===============");
+                  + " from ADTree ===============\n\n");
           weka.core.SerializationHelper.write(
                   folderName + files[i].getName().toString().replace("_test.arff", "") + ".model",
                   cls);
@@ -204,7 +204,7 @@ public class App {
         folderName = ("./model/");
         try {
           System.out.println("=============== Best Error: " + error2
-                  + " from J48graft ===============");
+                  + " from J48graft ===============\n\n");
           weka.core.SerializationHelper.write(
                   folderName + files[i].getName().toString().replace("_test.arff", "") + ".model",
                   cls);
@@ -238,7 +238,7 @@ public class App {
         folderName = ("./model/");
         try {
           System.out.println("=============== Best Error: " + error3
-                  + " from Decorate ===============");
+                  + " from Decorate ===============\n\n");
           weka.core.SerializationHelper.write(
                   folderName + files[i].getName().toString().replace("_test.arff", "") + ".model",
                   cls);
