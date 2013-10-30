@@ -1,136 +1,103 @@
 package f13_10601.project_dracarus;
 
-/**
- * Hello world!
- *
- */
 import weka.core.Instances;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.Standardize;
 import weka.filters.unsupervised.attribute.StringToWordVector;
-import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import weka.classifiers.meta.Decorate;
-import weka.classifiers.meta.FilteredClassifier;
-import weka.core.converters.ArffLoader.ArffReader;
+import weka.classifiers.meta.MultiClassClassifier;
 
-import java.io.*;
-
-/**
- * This class implements a simple text learner in Java using WEKA. It loads a text dataset written
- * in ARFF format, evaluates a classifier on it, and saves the learnt model for further use.
- * 
- * @author Jose Maria Gomez Hidalgo - http://www.esp.uem.es/jmgomez
- * @see MyFilteredClassifier
- */
 
 public class classifier3 {
 
-  /**
-   * Objects that stores training and testing data.
-   */
   Instances trainData;
-
   Instances testData;
-
-  /**
-   * Object that stores the filter
-   */
   StringToWordVector filter;
 
-  /**
-   * Object that stores the classifier
-   */
-  FilteredClassifier classifier;
+  
+  public MultiClassClassifier classifier3;
 
-  /**
-   * This method loads a dataset in ARFF format. If the file does not exist, or it has a wrong
-   * format, the attribute trainData is null.
-   * 
-   * @param fileName
-   *          The name of the file that stores the dataset.
-   */
-  public void loadTrainDataset(String fileName) {
-    try {
-      BufferedReader reader = new BufferedReader(new FileReader(fileName));
-      ArffReader arff = new ArffReader(reader);
-      trainData = arff.getData();
-      System.out.println("===== Loaded train dataset: " + fileName + " =====");
-      reader.close();
-    } catch (IOException e) {
-      System.out.println("Problem found when reading train data: " + fileName);
-    }
+    public void evaluateDecorate() {
+    	try 
+    	{
+    		//System.out.println("***********************"+trainData.numAttributes());
+    		//System.out.println("#######################"+testData.numAttributes());
+        	trainData.setClassIndex(trainData.numAttributes()-1);
+            testData.setClassIndex(testData.numAttributes()-1);
+            //System.out.println("1hhh");
+
+            /*try1 to get rid of the atrribute
+            Remove rm = new Remove();
+            filter.setOptions( weka.core.Utils.splitOptions("-R last"));
+            filter.setInputFormat(trainData);   
+            trainData = Filter.useFilter(trainData, filter);
+            testData = Filter.useFilter(testData, filter);
+            rm.setAttributeIndices("f");  // remove 1st attribute
+            */
+            
+            
+            classifier3 = new MultiClassClassifier();
+            //System.out.println("3hhh");
+            //classifier3.setFilter(filter);
+            //System.out.println("4hhh");
+            classifier3.setClassifier(new Decorate());
+            //System.out.println("5hhh");
+            //Evaluation eval = new Evaluation(trainData);
+            //System.out.println("6hhh");
+            //System.out.println("7hhh");
+            //System.out.println("8hhh");
+            //System.out.println(eval.toClassDetailsString());
+            //System.out.println("9hhh");
+            //System.out.println("===== Evaluating on filtered (training) dataset done =====");
+
+        } 
+    	catch (Exception e) 
+    	{
+        	System.out.println("Problem found when evaluating");
+        }
   }
 
-  public void loadTestDataset(String fileName) {
-    try {
-      BufferedReader reader = new BufferedReader(new FileReader(fileName));
-      ArffReader arff = new ArffReader(reader);
-      testData = arff.getData();
-      System.out.println("===== Loaded test dataset: " + fileName + " =====");
-      reader.close();
-    } catch (IOException e) {
-      System.out.println("Problem found when reading test data: " + fileName);
-    }
-  }
-
-  public void evaluate() {
-    try {
-      trainData.setClassIndex(trainData.numAttributes()-1);
-      testData.setClassIndex(trainData.numAttributes()-1);
-
-      filter = new StringToWordVector();
-      filter.setAttributeIndices("last");
-      classifier = new FilteredClassifier();
-      classifier.setFilter(filter);
-      classifier.setClassifier(new Decorate());
-      Evaluation eval = new Evaluation(trainData);
-      eval.crossValidateModel(classifier, trainData, 4, new Random(1));
-      System.out.println(eval.toSummaryString());
-      System.out.println(eval.toClassDetailsString());
-      System.out.println("===== Evaluating on filtered (training) dataset done =====");
-
-    } catch (Exception e) {
-      System.out.println("Problem found when evaluating");
-    }
-  }
-
-  /**
-   * This method trains the classifier on the loaded dataset.
-   */
-  public double learn() {
-    Instances train = trainData; // from somewhere
-    Instances test = testData; // from somewhere
+  public double learnDecorate() throws Exception 
+  {
+    //Instances train = trainData; // from somewhere
+    //Instances test = testData; // from somewhere
+    
+    /*try 2 to get rid of the attribute
     Standardize filter = new Standardize();
+    StringToWordVector filter1 = new StringToWordVector();
+    	filter.setOptions( weka.core.Utils.splitOptions("SubsetByExpression -E \"(ATT26< 2)\""));
+	
+    try {
+		filter1.setInputFormat(trainData);
+	} catch (Exception e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}   
+    try {
+		trainData = Filter.useFilter(trainData, filter1);
+	} catch (Exception e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
+    try {
+		testData = Filter.useFilter(testData, filter1);
+	} catch (Exception e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
+
     try {
       filter.setInputFormat(train);
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } // initializing the filter once with training set
-    Instances newTrain = null;
+    */
+    
+    // train classifier
+    classifier3.setClassifier(new Decorate());
     try {
-      newTrain = Filter.useFilter(train, filter);
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } // configures the Filter based on train instances and returns filtered instances
-    Instances newTest = null;
-    try {
-      newTest = Filter.useFilter(test, filter);
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } // create new test set
-      // train classifier
-    Classifier cls = new Decorate();
-    try {
-      cls.buildClassifier(newTrain);
+      classifier3.buildClassifier(trainData);
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -138,72 +105,20 @@ public class classifier3 {
     // evaluate classifier and print some statistics
     Evaluation eval = null;
     try {
-      eval = new Evaluation(newTrain);
+      eval = new Evaluation(trainData);
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
     try {
-      eval.evaluateModel(cls, newTest);
+      eval.evaluateModel(classifier3, testData);
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    System.out.println(eval.toSummaryString("\nResults\n======\n", false)); // Uncomment to see the
+    //System.out.println(eval.toSummaryString("\nResults\n======\n", false)); // Uncomment to see the
      return eval.errorRate();                                                                        // classifier
 
   }
-
-  /**
-   * This method saves the trained model into a file. This is done by simple serialization of the
-   * classifier object.
-   * 
-   * @param fileName
-   *          The name of the file that will store the trained model.
-   */
-  public void saveModel(String fileName) {
-    try {
-      weka.core.SerializationHelper.write(fileName, classifier);
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * Main method. It is an example of the usage of this class.
-   * 
-   * @param args
-   *          Command-line arguments: fileData and fileModel.
-   */
-  public static List<Double> main(String[] args) {
-
-    classifier3 learner;
-    learner = new classifier3();
-    File[] files = new File("C:/Users/user/git/dracarus/1/dataout/").listFiles();
-    // System.out.println(files.length);
-
-    int limit = (files.length);
-    List<Double> errorList = new ArrayList<Double>();
-    
-    for (int i = 2; i < limit; i = i + 2) {
-      // System.out.println(files[i].getAbsolutePath());
-      learner.loadTrainDataset(files[i].getAbsolutePath());
-      learner.loadTestDataset(files[i + 1].getAbsolutePath());
-
-      // Evaluation must be done before training
-      // More info in: http://weka.wikispaces.com/Use+WEKA+in+your+Java+code
-      learner.evaluate();
-      double error = learner.learn();
-      errorList.add(error);
-      
-      String folderName = ("C:/Users/user/git/dracarus/1/model/"
-              + files[i].getName().toString().replace("_test.arff", "") + "/");
-      learner.saveModel(folderName + "Decorate_"
-              + files[i].getName().toString().replace("_test.arff", "") + ".model");
-    }
-    return errorList;
-
-  }
-
+  
 }
