@@ -103,8 +103,25 @@ public class App {
       cls2.testData = testData;
       cls2.trainData = trainData;
 
-      cls3.testData = testData;
-      cls3.trainData = trainData;
+      if (files[i].getAbsolutePath().contains("hypothyroid")) {
+        for (int m = 0; m < trainData.numAttributes(); m++) {
+          if (trainData.attribute(m).name().equals("TBG measured")) {
+            trainData.deleteAttributeAt(m);
+          }
+        }
+
+        for (int m = 0; m < testData.numAttributes(); m++) {
+          if (testData.attribute(m).name().equals("TBG measured") == true) {
+            testData.deleteAttributeAt(m);
+          }
+        }
+
+        cls3.testData = testData;
+        cls3.trainData = trainData;
+      } else {
+        cls3.testData = testData;
+        cls3.trainData = trainData;
+      }
 
       clsnb.testData = testData;
       clsnb.trainData = trainData;
@@ -135,7 +152,7 @@ public class App {
 
       least_error = Math.min(error1, Math.min(error2, error3));
 
-      System.out.println("*********** ADTree Error: " + error1);
+      System.out.println("\n\n*********** ADTree Error: " + error1);
       System.out.println("*********** J48graft Error: " + error2);
       System.out.println("*********** Decorate Error: " + error3);
       System.out.println("*********** NaiveBayes Error: " + error_nb);
