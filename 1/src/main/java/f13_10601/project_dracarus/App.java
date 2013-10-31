@@ -158,6 +158,9 @@ public class App {
       System.out.println("*********** NaiveBayes Error: " + error_nb);
 
       String folderName;
+      folderName = ("./model/");
+      File file = new File(folderName);
+      file.mkdir();
 
       if (error1 == least_error) {
         MultiClassClassifier cls = new MultiClassClassifier();
@@ -183,9 +186,6 @@ public class App {
           e1.printStackTrace();
         }
 
-        folderName = ("./model/");
-        File file  = new File(folderName);
-        file.mkdir();
         try {
           System.out.println("=============== Best Error: " + error1
                   + " from ADTree ===============\n\n");
@@ -220,7 +220,7 @@ public class App {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
-        folderName = ("./model/");
+
         try {
           System.out.println("=============== Best Error: " + error2
                   + " from J48graft ===============\n\n");
@@ -254,7 +254,7 @@ public class App {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
-        folderName = ("./model/");
+
         try {
           System.out.println("=============== Best Error: " + error3
                   + " from Decorate ===============\n\n");
