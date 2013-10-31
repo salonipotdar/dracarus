@@ -184,6 +184,8 @@ public class App {
         }
 
         folderName = ("./model/");
+        File file  = new File(folderName);
+        file.mkdir();
         try {
           System.out.println("=============== Best Error: " + error1
                   + " from ADTree ===============\n\n");
