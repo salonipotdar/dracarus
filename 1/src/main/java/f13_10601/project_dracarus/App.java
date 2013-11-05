@@ -31,6 +31,9 @@ public class App {
   static MultiClassClassifier classifier3_App;
 
   static MultiClassClassifier NBClassifier_App;
+  
+  public static String[] options = {"-U false","-C 0.45", "-M 8", "-S true", "-A false", "-E false"};
+
 
   public void loadTrainDataset(String fileName) {
     try {
@@ -56,7 +59,7 @@ public class App {
     }
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
 
     MultiClassClassifier classifier1_App = new MultiClassClassifier();
     MultiClassClassifier classifier2_App = new MultiClassClassifier();
@@ -200,6 +203,7 @@ public class App {
       } else if (error2 == least_error) {
         MultiClassClassifier cls = new MultiClassClassifier();
         cls.setClassifier(new J48graft());
+        cls.setOptions(options);
 
         // train
         Instances inst = null;
