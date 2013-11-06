@@ -5,7 +5,7 @@ import weka.filters.unsupervised.attribute.StringToWordVector;
 import weka.classifiers.Evaluation;
 import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.MultiClassClassifier;
-import weka.classifiers.trees.J48;
+import weka.classifiers.trees.RandomForest;
 
 public class classifier3 {
 
@@ -25,8 +25,8 @@ public class classifier3 {
       testData.setClassIndex(testData.numAttributes() - 1);
 
       Decorate myClassifier = new Decorate();
-      J48 J48Classifier = new J48();
-      myClassifier.setClassifier(J48Classifier);
+      RandomForest RFClassifier = new RandomForest();
+      myClassifier.setClassifier(RFClassifier);
       myClassifier.setNumIterations(50);
       myClassifier.setArtificialSize(1.0);
       myClassifier.setDesiredSize(15);
@@ -46,8 +46,8 @@ public class classifier3 {
 
     // train classifier
     Decorate myClassifier = new Decorate();
-    J48 J48Classifier = new J48();
-    myClassifier.setClassifier(J48Classifier);
+    RandomForest RFClassifier = new RandomForest();
+    myClassifier.setClassifier(RFClassifier);
     myClassifier.setNumIterations(50);
     myClassifier.setArtificialSize(1.0);
     myClassifier.setDesiredSize(15);

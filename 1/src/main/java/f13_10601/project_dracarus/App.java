@@ -14,8 +14,8 @@ import java.util.Collections;
 import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.MultiClassClassifier;
 import weka.classifiers.trees.ADTree;
-import weka.classifiers.trees.J48;
 import weka.classifiers.trees.J48graft;
+import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
 
@@ -88,6 +88,10 @@ public class App {
     }
 
     ArrayList<Double> errorC_errorNB = new ArrayList<Double>();
+    ArrayList<Double> errorC1 = new ArrayList<Double>();
+    ArrayList<Double> errorC2 = new ArrayList<Double>();
+    ArrayList<Double> errorC3 = new ArrayList<Double>();
+    ArrayList<Double> errorNB = new ArrayList<Double>();
 
     for (int i = 2; i < limit; i = i + 2) {
       app_obj.loadTestDataset(files[i].getAbsolutePath());
@@ -134,13 +138,16 @@ public class App {
 
       cls1.evaluateADTree();
       error1 = cls1.learnADTree();
+      errorC1.add(error1);
 
       cls2.evaluateJ48graft();
       error2 = cls2.learnJ48graft();
+      errorC2.add(error2);
 
       cls3.evaluateDecorate();
       try {
         error3 = cls3.learnDecorate();
+        errorC3.add(error3);
       } catch (Exception e1) {
         // TODO Auto-generated catch block
         // e1.printStackTrace();
@@ -158,12 +165,54 @@ public class App {
       System.out.println("*********** Decorate Error: " + error3);
       System.out.println("*********** NaiveBayes Error: " + error_nb);
 
+      errorNB.add(error_nb);
+
+    }
+
+    ArrayList<Double> errorC1_original = (ArrayList<Double>) errorC1.clone();
+    System.out.println("errorc1:");
+    System.out.println(errorC1_original);
+    ArrayList<Double> errorC2_original = (ArrayList<Double>) errorC2.clone();
+    System.out.println("errorc2:");
+    System.out.println(errorC2_original);
+    ArrayList<Double> errorC3_original = (ArrayList<Double>) errorC3.clone();
+    System.out.println("errorc3:");
+    System.out.println(errorC3_original);
+    Collections.sort(errorC1);
+    Collections.sort(errorC2);
+    Collections.sort(errorC3);
+
+    double sumErrorC1 = 0, sumErrorC2 = 0, sumErrorC3 = 0;
+    for (int i = 0; i < errorC1.size(); i++) {
+      sumErrorC1 += errorC1.get(i);
+      sumErrorC2 += errorC2.get(i);
+      sumErrorC3 += errorC3.get(i);
+    }
+
+    double avgErrorC1 = sumErrorC1 / errorC1.size();
+    double avgErrorC2 = sumErrorC2 / errorC2.size();
+    double avgErrorC3 = sumErrorC3 / errorC3.size();
+
+    double maxErrorC1 = errorC1.get(errorC1.size() - 1);
+    double maxErrorC2 = errorC2.get(errorC2.size() - 1);
+    double maxErrorC3 = errorC3.get(errorC3.size() - 1);
+
+    double maxMinusAvgErrorC1 = maxErrorC1 - avgErrorC1;
+    double maxMinusAvgErrorC2 = maxErrorC2 - avgErrorC2;
+    double maxMinusAvgErrorC3 = maxErrorC3 - avgErrorC3;
+
+    double f1ScoreC1 = (5 * maxMinusAvgErrorC1 * avgErrorC1) / (maxMinusAvgErrorC1 + (2*avgErrorC1));
+    double f1ScoreC2 = (5 * maxMinusAvgErrorC2 * avgErrorC2) / (maxMinusAvgErrorC2 + (2*avgErrorC2));
+    double f1ScoreC3 = (5 * maxMinusAvgErrorC3 * avgErrorC3) / (maxMinusAvgErrorC3 + (2*avgErrorC3));
+
+    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2, f1ScoreC3+1));
+    if (leastF1Score == f1ScoreC1) {
+      // output all models for this one
       String folderName;
       folderName = ("./model/");
       File file = new File(folderName);
       file.mkdir();
-
-      if (error1 == least_error) {
+      for (int i = 2; i < limit; i = i + 2) {
 
         ADTree myClassifier = new ADTree();
         myClassifier.setNumOfBoostingIterations(50);
@@ -192,8 +241,6 @@ public class App {
         }
 
         try {
-          System.out.println("=============== Best Error: " + error1
-                  + " from ADTree ===============\n\n");
           weka.core.SerializationHelper.write(
                   folderName + files[i].getName().toString().replace("_test.arff", "") + ".model",
                   cls);
@@ -202,7 +249,20 @@ public class App {
           e.printStackTrace();
         }
 
-      } else if (error2 == least_error) {
+      }
+      for (int k = 0; k < errorC1.size(); k++) {
+        System.out.println("=============== Best Error: " + errorC1_original.get(k)
+                + " from ADTree ===============\n\n");
+        writer.println(errorC1_original.get(k) / errorNB.get(k));
+        errorC_errorNB.add(errorC1_original.get(k) / errorNB.get(k));
+      }
+    } else if (leastF1Score == f1ScoreC2) {
+      String folderName;
+      folderName = ("./model/");
+      File file = new File(folderName);
+      file.mkdir();
+      // output all models for this one
+      for (int i = 2; i < limit; i = i + 2) {
         J48graft myClassifier = new J48graft();
         myClassifier.setUnpruned(false);
         myClassifier.setConfidenceFactor((float) 0.45);
@@ -236,8 +296,6 @@ public class App {
         }
 
         try {
-          System.out.println("=============== Best Error: " + error2
-                  + " from J48graft ===============\n\n");
           weka.core.SerializationHelper.write(
                   folderName + files[i].getName().toString().replace("_test.arff", "") + ".model",
                   cls);
@@ -245,10 +303,24 @@ public class App {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
-      } else if (error3 == least_error) {
+      }
+      for (int k = 0; k < errorC2.size(); k++) {
+        System.out.println("=============== Best Error: " + errorC2_original.get(k)
+                + " from J48graft ===============\n\n");
+        writer.println(errorC2_original.get(k) / errorNB.get(k));
+        errorC_errorNB.add(errorC2_original.get(k) / errorNB.get(k));
+      }
+    } else if (leastF1Score == f1ScoreC3) {
+      // output all models for this one
+      String folderName;
+      folderName = ("./model/");
+      File file = new File(folderName);
+      file.mkdir();
+      for (int i = 2; i < limit; i = i + 2) {
+
         Decorate myClassifier = new Decorate();
-        J48 J48Classifier = new J48();
-        myClassifier.setClassifier(J48Classifier);
+        RandomForest RFClassifier = new RandomForest();
+        myClassifier.setClassifier(RFClassifier);
         myClassifier.setNumIterations(50);
         myClassifier.setArtificialSize(1.0);
         myClassifier.setDesiredSize(15);
@@ -260,6 +332,14 @@ public class App {
         Instances inst = null;
         try {
           inst = new Instances(new BufferedReader(new FileReader(files[i + 1].getAbsolutePath())));
+          if (files[i].getAbsolutePath().contains("hypothyroid")) {
+            for (int m = 0; m < inst.numAttributes(); m++) {
+              if (inst.attribute(m).name().equals("TBG measured")) {
+                inst.deleteAttributeAt(m);
+              }
+            }
+
+          }
         } catch (FileNotFoundException e1) {
           // TODO Auto-generated catch block
           e1.printStackTrace();
@@ -277,8 +357,6 @@ public class App {
         }
 
         try {
-          System.out.println("=============== Best Error: " + error3
-                  + " from Decorate ===============\n\n");
           weka.core.SerializationHelper.write(
                   folderName + files[i].getName().toString().replace("_test.arff", "") + ".model",
                   cls);
@@ -286,10 +364,15 @@ public class App {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
+
+      }
+      for (int k = 0; k < errorC3_original.size(); k++) {
+        System.out.println("=============== Best Error: " + errorC3_original.get(k)
+                + " from Decorate ===============\n\n");
+        writer.println(errorC3_original.get(k) / errorNB.get(k));
+        errorC_errorNB.add(errorC3_original.get(k) / errorNB.get(k));
       }
 
-      writer.println(least_error / error_nb);
-      errorC_errorNB.add(least_error / error_nb);
     }
 
     double average = 0.0;
