@@ -22,8 +22,6 @@ public class classifier2 {
   StringToWordVector filter;
 
   public MultiClassClassifier classifier2;
-  
-  public String[] options = {"-U false","-C 0.45", "-M 8", "-S true", "-A false", "-E false"};
 
   public void evaluateJ48graft() {
     try {
@@ -33,9 +31,18 @@ public class classifier2 {
       filter = new StringToWordVector();
       filter.setAttributeIndices("last");
 
+      J48graft myClassifier = new J48graft();
+      myClassifier.setUnpruned(false);
+      myClassifier.setConfidenceFactor((float) 0.45);
+      myClassifier.setMinNumObj(2);
+      myClassifier.setBinarySplits(false);
+      // myClassifier.setSubtreeRaising(false);
+      myClassifier.setUseLaplace(true);
+      myClassifier.setRelabel(true);
+
       classifier2 = new MultiClassClassifier();
-      classifier2.setClassifier(new J48graft());
-      classifier2.setOptions(options);
+      classifier2.setClassifier(myClassifier);
+
       Evaluation eval = new Evaluation(trainData);
       eval.crossValidateModel(classifier2, trainData, 4, new Random(1));
       // System.out.println(eval.toSummaryString());
@@ -44,17 +51,29 @@ public class classifier2 {
 
     } catch (Exception e) {
       System.out.println("Problem found when evaluating");
+      e.printStackTrace();
     }
   }
 
   /**
    * This method trains the classifier on the loaded dataset.
+   * 
    * @throws Exception
    */
   public double learnJ48graft() throws Exception {
 
-    classifier2.setClassifier(new J48graft());
-    classifier2.setOptions(options);
+    J48graft myClassifier = new J48graft();
+    myClassifier.setUnpruned(false);
+    myClassifier.setConfidenceFactor((float) 0.45);
+    myClassifier.setMinNumObj(2);
+    myClassifier.setBinarySplits(false);
+    // myClassifier.setSubtreeRaising(false);
+    myClassifier.setUseLaplace(true);
+    myClassifier.setRelabel(true);
+
+    classifier2 = new MultiClassClassifier();
+    classifier2.setClassifier(myClassifier);
+
     try {
       classifier2.buildClassifier(trainData);
     } catch (Exception e) {

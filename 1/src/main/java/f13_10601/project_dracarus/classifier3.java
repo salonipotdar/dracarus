@@ -3,9 +3,9 @@ package f13_10601.project_dracarus;
 import weka.core.Instances;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 import weka.classifiers.Evaluation;
-
 import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.MultiClassClassifier;
+import weka.classifiers.trees.J48;
 
 public class classifier3 {
 
@@ -24,8 +24,15 @@ public class classifier3 {
       trainData.setClassIndex(trainData.numAttributes() - 1);
       testData.setClassIndex(testData.numAttributes() - 1);
 
+      Decorate myClassifier = new Decorate();
+      J48 J48Classifier = new J48();
+      myClassifier.setClassifier(J48Classifier);
+      myClassifier.setNumIterations(50);
+      myClassifier.setArtificialSize(1.0);
+      myClassifier.setDesiredSize(15);
+
       classifier3 = new MultiClassClassifier();
-      classifier3.setClassifier(new Decorate());
+      classifier3.setClassifier(myClassifier);
 
       // System.out.println(eval.toClassDetailsString());
       // System.out.println("===== Evaluating on filtered (training) dataset done =====");
@@ -38,7 +45,15 @@ public class classifier3 {
   public double learnDecorate() throws Exception {
 
     // train classifier
-    classifier3.setClassifier(new Decorate());
+    Decorate myClassifier = new Decorate();
+    J48 J48Classifier = new J48();
+    myClassifier.setClassifier(J48Classifier);
+    myClassifier.setNumIterations(50);
+    myClassifier.setArtificialSize(1.0);
+    myClassifier.setDesiredSize(15);
+
+    classifier3 = new MultiClassClassifier();
+    classifier3.setClassifier(myClassifier);
     try {
       classifier3.buildClassifier(trainData);
     } catch (Exception e) {

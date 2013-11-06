@@ -14,6 +14,7 @@ import java.util.Collections;
 import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.MultiClassClassifier;
 import weka.classifiers.trees.ADTree;
+import weka.classifiers.trees.J48;
 import weka.classifiers.trees.J48graft;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
@@ -31,9 +32,6 @@ public class App {
   static MultiClassClassifier classifier3_App;
 
   static MultiClassClassifier NBClassifier_App;
-  
-  public static String[] options = {"-U false","-C 0.45", "-M 8", "-S true", "-A false", "-E false"};
-
 
   public void loadTrainDataset(String fileName) {
     try {
@@ -166,8 +164,12 @@ public class App {
       file.mkdir();
 
       if (error1 == least_error) {
+
+        ADTree myClassifier = new ADTree();
+        myClassifier.setNumOfBoostingIterations(50);
+
         MultiClassClassifier cls = new MultiClassClassifier();
-        cls.setClassifier(new ADTree());
+        cls.setClassifier(myClassifier);
 
         // train
         Instances inst = null;
@@ -201,9 +203,17 @@ public class App {
         }
 
       } else if (error2 == least_error) {
+        J48graft myClassifier = new J48graft();
+        myClassifier.setUnpruned(false);
+        myClassifier.setConfidenceFactor((float) 0.45);
+        myClassifier.setMinNumObj(2);
+        myClassifier.setBinarySplits(false);
+        // myClassifier.setSubtreeRaising(false);
+        myClassifier.setUseLaplace(true);
+        myClassifier.setRelabel(true);
+
         MultiClassClassifier cls = new MultiClassClassifier();
-        cls.setClassifier(new J48graft());
-        cls.setOptions(options);
+        cls.setClassifier(myClassifier);
 
         // train
         Instances inst = null;
@@ -236,8 +246,15 @@ public class App {
           e.printStackTrace();
         }
       } else if (error3 == least_error) {
+        Decorate myClassifier = new Decorate();
+        J48 J48Classifier = new J48();
+        myClassifier.setClassifier(J48Classifier);
+        myClassifier.setNumIterations(50);
+        myClassifier.setArtificialSize(1.0);
+        myClassifier.setDesiredSize(15);
+
         MultiClassClassifier cls = new MultiClassClassifier();
-        cls.setClassifier(new Decorate());
+        cls.setClassifier(myClassifier);
 
         // train
         Instances inst = null;
