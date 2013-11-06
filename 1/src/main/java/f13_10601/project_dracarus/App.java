@@ -93,6 +93,9 @@ public class App {
     ArrayList<Double> errorC3 = new ArrayList<Double>();
     ArrayList<Double> errorNB = new ArrayList<Double>();
 
+    long startTime, endTime;
+    double ADTreeTime=0.0, J48graftTime=0.0, DecorateTime=0.0;
+    
     for (int i = 2; i < limit; i = i + 2) {
       app_obj.loadTestDataset(files[i].getAbsolutePath());
       app_obj.loadTrainDataset(files[i + 1].getAbsolutePath());
@@ -136,17 +139,26 @@ public class App {
       clsnb.evaluateNB();
       double error_nb = clsnb.learnNB();
 
+      startTime=System.currentTimeMillis();
       cls1.evaluateADTree();
       error1 = cls1.learnADTree();
+      endTime=System.currentTimeMillis();
+      ADTreeTime = ADTreeTime+ ( (double) (endTime-startTime)/1000 );
       errorC1.add(error1);
 
+      startTime=System.currentTimeMillis();
       cls2.evaluateJ48graft();
       error2 = cls2.learnJ48graft();
+      endTime=System.currentTimeMillis();
+      J48graftTime = J48graftTime+ ( (double) (endTime-startTime)/1000 );
       errorC2.add(error2);
 
+      startTime=System.currentTimeMillis();
       cls3.evaluateDecorate();
       try {
         error3 = cls3.learnDecorate();
+        endTime=System.currentTimeMillis();
+        DecorateTime = DecorateTime + ( (double) (endTime-startTime)/1000 );
         errorC3.add(error3);
       } catch (Exception e1) {
         // TODO Auto-generated catch block
@@ -383,5 +395,9 @@ public class App {
     Collections.sort(errorC_errorNB);
     writer.print(errorC_errorNB.get(errorC_errorNB.size() - 1));
     writer.close();
+    System.out.println("------------ Time Values -------------");
+    System.out.println("**** For ADTree: "+ ADTreeTime);
+    System.out.println("**** For J48graft: "+ J48graftTime);
+    System.out.println("**** For Decorate: "+ DecorateTime);
   }
 }
