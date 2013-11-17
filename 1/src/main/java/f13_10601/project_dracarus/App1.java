@@ -19,7 +19,7 @@ import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
 
-public class App {
+public class App1 {
 
   static Instances trainData;
 
@@ -64,12 +64,12 @@ public class App {
     MultiClassClassifier classifier3_App = new MultiClassClassifier();
     MultiClassClassifier NBClassifier_App = new MultiClassClassifier();
 
-    classifier1 cls1 = new classifier1();
-    classifier2 cls2 = new classifier2();
-    classifier3 cls3 = new classifier3();
-    NBClassifier clsnb = new NBClassifier();
+    classifier11 cls1 = new classifier11();
+    classifier21 cls2 = new classifier21();
+    classifier31 cls3 = new classifier31();
+    NBClassifier1 clsnb = new NBClassifier1();
 
-    App app_obj = new App();
+    App1 app_obj = new App1();
 
     File XMLDirectory = new File("./dataout/");
     File[] files = XMLDirectory.listFiles();
@@ -217,7 +217,7 @@ public class App {
     double f1ScoreC2 = (5 * maxMinusAvgErrorC2 * avgErrorC2) / (maxMinusAvgErrorC2 + (2*avgErrorC2));
     double f1ScoreC3 = (5 * maxMinusAvgErrorC3 * avgErrorC3) / (maxMinusAvgErrorC3 + (2*avgErrorC3));
 
-    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2, f1ScoreC3+1));
+    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2, f1ScoreC3));
     if (leastF1Score == f1ScoreC1) {
       // output all models for this one
       String folderName;

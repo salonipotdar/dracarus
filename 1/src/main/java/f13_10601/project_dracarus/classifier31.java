@@ -7,7 +7,7 @@ import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.MultiClassClassifier;
 import weka.classifiers.trees.RandomForest;
 
-public class classifier3 {
+public class classifier31 {
 
   Instances trainData;
 

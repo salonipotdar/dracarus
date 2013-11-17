@@ -7,7 +7,7 @@ import weka.classifiers.Evaluation;
 
 import weka.classifiers.bayes.NaiveBayes;
 
-public class NBClassifier {
+public class NBClassifier1 {
 
   Instances trainData;
 

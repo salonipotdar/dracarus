@@ -13,7 +13,7 @@ import java.util.Random;
 import weka.classifiers.meta.MultiClassClassifier;
 import weka.classifiers.trees.J48graft;
 
-public class classifier2 {
+public class classifier21 {
 
   Instances trainData;
 
