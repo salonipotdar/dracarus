@@ -45,6 +45,7 @@ public class App4b {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
       ArffReader arff = new ArffReader(reader);
       trainData = arff.getData();
+      
       if (fileName.contains("splice")) {
         System.out.println("Train: HAHAHAHAHA");
         // MODIFIED BY SALONI
@@ -56,6 +57,7 @@ public class App4b {
         index = randInt(1, 4);
         trainData = trainDataSampled[index];
       }
+      
       System.out.println("===== Loaded train dataset: " + fileName + " =====");
       reader.close();
     } catch (IOException e) {

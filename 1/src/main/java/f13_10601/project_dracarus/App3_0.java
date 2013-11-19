@@ -10,17 +10,18 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
-import weka.classifiers.Evaluation;
 import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.MultiClassClassifier;
 import weka.classifiers.trees.ADTree;
 import weka.classifiers.trees.J48graft;
-import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
 
 public class App3_0 {
+
+  static int index;
 
   static Instances trainData;
 
@@ -34,19 +35,24 @@ public class App3_0 {
 
   static MultiClassClassifier NBClassifier_App;
 
-  public void loadTrainDataset(String fileName) {
+  public void loadTrainDataset(String fileName) throws Exception {
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
       ArffReader arff = new ArffReader(reader);
       trainData = arff.getData();
+
       if (fileName.contains("splice")) {
         System.out.println("Train: HAHAHAHAHA");
-        for (int m = 1; m < 50; m++) {
-          if (trainData.attribute(m).name().equals("Attribute_" + m) == true) {
-            trainData.deleteAttributeAt(m);
-          }
-        }
+        // MODIFIED BY SALONI
+        // give the number of splits
+        int noOfSplits = 5;
+        // split the data
+        Instances[] trainDataSampled = partitionDataSetToSamples(trainData, noOfSplits);
+        // use only one of them to train
+        index = randInt(1, 4);
+        trainData = trainDataSampled[index];
       }
+
       System.out.println("===== Loaded train dataset: " + fileName + " =====");
       reader.close();
     } catch (IOException e) {
@@ -73,9 +79,9 @@ public class App3_0 {
     MultiClassClassifier classifier3_App = new MultiClassClassifier();
     MultiClassClassifier NBClassifier_App = new MultiClassClassifier();
 
-    classifier14b cls1 = new classifier14b();
-    classifier24b cls2 = new classifier24b();
-    classifier34b cls3 = new classifier34b();
+    classifier13_0 cls1 = new classifier13_0();
+    classifier23_0 cls2 = new classifier23_0();
+    classifier33_0 cls3 = new classifier33_0();
     NBClassifier0 clsnb = new NBClassifier0();
 
     App3_0 app_obj = new App3_0();
@@ -97,10 +103,6 @@ public class App3_0 {
     }
 
     ArrayList<Double> errorC_errorNB = new ArrayList<Double>();
-    ArrayList<Double> errorC1 = new ArrayList<Double>();
-    ArrayList<Double> errorC2 = new ArrayList<Double>();
-    ArrayList<Double> errorC3 = new ArrayList<Double>();
-    ArrayList<Double> errorNB = new ArrayList<Double>();
 
     for (int i = 2; i < limit; i = i + 2) {
       app_obj.loadTestDataset(files[i].getAbsolutePath());
@@ -117,29 +119,43 @@ public class App3_0 {
       cls2.testData = testData;
       cls2.trainData = trainData;
 
-      cls3.testData = testData;
-      cls3.trainData = trainData;
+      if (files[i].getAbsolutePath().contains("hypothyroid")) {
+        for (int m = 0; m < trainData.numAttributes(); m++) {
+          if (trainData.attribute(m).name().equals("TBG measured")) {
+            trainData.deleteAttributeAt(m);
+          }
+        }
+
+        for (int m = 0; m < testData.numAttributes(); m++) {
+          if (testData.attribute(m).name().equals("TBG measured") == true) {
+            testData.deleteAttributeAt(m);
+          }
+        }
+
+        cls3.testData = testData;
+        cls3.trainData = trainData;
+      } else {
+        cls3.testData = testData;
+        cls3.trainData = trainData;
+      }
 
       clsnb.testData = testData;
       clsnb.trainData = trainData;
 
-      double error1, error2, error3;
+      double error1, error2, error3, least_error;
 
       clsnb.evaluateNB();
       double error_nb = clsnb.learnNB();
 
       cls1.evaluateADTree();
       error1 = cls1.learnADTree();
-      errorC1.add(error1);
 
       cls2.evaluateJ48graft();
       error2 = cls2.learnJ48graft();
-      errorC2.add(error2);
 
       cls3.evaluateDecorate();
       try {
         error3 = cls3.learnDecorate();
-        errorC3.add(error3);
       } catch (Exception e1) {
         // TODO Auto-generated catch block
         // e1.printStackTrace();
@@ -150,76 +166,26 @@ public class App3_0 {
         error3 = 1.0;
       }
 
+      least_error = Math.min(error1, Math.min(error2 + 1, error3 + 1));
+
       System.out.println("\n\n*********** ADTree Error: " + error1);
       System.out.println("*********** J48graft Error: " + error2);
       System.out.println("*********** Decorate Error: " + error3);
       System.out.println("*********** NaiveBayes Error: " + error_nb);
 
-      errorNB.add(error_nb);
-
-    }
-
-    ArrayList<Double> errorC1_original = (ArrayList<Double>) errorC1.clone();
-    System.out.println("errorc1:");
-    System.out.println(errorC1_original);
-    ArrayList<Double> errorC2_original = (ArrayList<Double>) errorC2.clone();
-    System.out.println("errorc2:");
-    System.out.println(errorC2_original);
-    ArrayList<Double> errorC3_original = (ArrayList<Double>) errorC3.clone();
-    System.out.println("errorc3:");
-    System.out.println(errorC3_original);
-    Collections.sort(errorC1);
-    Collections.sort(errorC2);
-    Collections.sort(errorC3);
-
-    double sumErrorC1 = 0, sumErrorC2 = 0, sumErrorC3 = 0;
-    for (int i = 0; i < errorC1.size(); i++) {
-      sumErrorC1 += errorC1.get(i);
-      sumErrorC2 += errorC2.get(i);
-      sumErrorC3 += errorC3.get(i);
-    }
-
-    double avgErrorC1 = sumErrorC1 / errorC1.size();
-    double avgErrorC2 = sumErrorC2 / errorC2.size();
-    double avgErrorC3 = sumErrorC3 / errorC3.size();
-
-    double maxErrorC1 = errorC1.get(errorC1.size() - 1);
-    double maxErrorC2 = errorC2.get(errorC2.size() - 1);
-    double maxErrorC3 = errorC3.get(errorC3.size() - 1);
-
-    double maxMinusAvgErrorC1 = maxErrorC1 - avgErrorC1;
-    double maxMinusAvgErrorC2 = maxErrorC2 - avgErrorC2;
-    double maxMinusAvgErrorC3 = maxErrorC3 - avgErrorC3;
-
-    // double f1ScoreC1=(2*maxMinusAvgErrorC1*avgErrorC1)/(maxMinusAvgErrorC1+avgErrorC1);
-    // double f1ScoreC2=(2*maxMinusAvgErrorC2*avgErrorC2)/(maxMinusAvgErrorC2+avgErrorC2);
-    // double f1ScoreC3=(2*maxMinusAvgErrorC3*avgErrorC3)/(maxMinusAvgErrorC3+avgErrorC3);
-
-    double f1ScoreC1 = avgErrorC1;
-    double f1ScoreC2 = avgErrorC2;
-    double f1ScoreC3 = avgErrorC3;
-
-    System.out.println(f1ScoreC1 + "**" + f1ScoreC2 + "**" + f1ScoreC3);
-    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2, f1ScoreC3+1));
-    if (leastF1Score == f1ScoreC1) {
-      // output all models for this one
       String folderName;
       folderName = ("./model/");
       File file = new File(folderName);
       file.mkdir();
-      for (int i = 2; i < limit; i = i + 2) {
 
-        ADTree myClassifier = new ADTree();
-        
+      if (error1 == least_error) {
         MultiClassClassifier cls = new MultiClassClassifier();
-        cls.setClassifier(myClassifier);
+        cls.setClassifier(new ADTree());
 
         // train
         Instances inst = null;
-        Instances inst1 = null;
         try {
           inst = new Instances(new BufferedReader(new FileReader(files[i + 1].getAbsolutePath())));
-          inst1 = new Instances(new BufferedReader(new FileReader(files[i].getAbsolutePath())));
         } catch (FileNotFoundException e1) {
           // TODO Auto-generated catch block
           e1.printStackTrace();
@@ -228,7 +194,16 @@ public class App3_0 {
           e1.printStackTrace();
         }
         inst.setClassIndex(inst.numAttributes() - 1);
-        inst1.setClassIndex(inst1.numAttributes() - 1);
+
+        if (files[i + 1].getAbsolutePath().contains("splice")) {
+          // give the number of splits
+          int noOfSplits = 5;
+          // split the data
+          Instances[] trainDataSampled = partitionDataSetToSamples(inst, noOfSplits);
+          // use only one of them to train
+          // int index = randInt(1, 5);
+          inst = trainDataSampled[index];
+        }
 
         try {
           cls.buildClassifier(inst);
@@ -238,52 +213,24 @@ public class App3_0 {
         }
 
         try {
-          Evaluation eval = null;
-          eval = new Evaluation(inst);
-          eval.evaluateModel(cls, inst1);
-          PrintWriter writer1 = new PrintWriter(folderName
-                  + files[i].getName().toString().replace("_test.arff", "") + ".predict", "UTF-8");
-          for (int i1 = 0; i1 < inst1.numInstances(); i1++) {
-            long prediction = (long) cls.classifyInstance(inst1.instance(i1));
-            writer1.write(Long.toString(prediction) + "\n");
-          }
-          writer1.close();
+          System.out.println("=============== Best Error: " + error1
+                  + " from ADTree ===============\n\n");
+          weka.core.SerializationHelper.write(
+                  folderName + files[i].getName().toString().replace("_test.arff", "") + "0.model",
+                  cls);
         } catch (Exception e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
 
-      }
-      for (int k = 0; k < errorC1.size(); k++) {
-        System.out.println("=============== Best Error: " + errorC1_original.get(k)
-                + " from ADTree ===============\n\n");
-        writer.println(errorC1_original.get(k) / errorNB.get(k));
-        errorC_errorNB.add(errorC1_original.get(k) / errorNB.get(k));
-      }
-    } else if (leastF1Score == f1ScoreC2) {
-      String folderName;
-      folderName = ("./model/");
-      File file = new File(folderName);
-      file.mkdir();
-      // output all models for this one
-      for (int i = 2; i < limit; i = i + 2) {
-        J48graft myClassifier = new J48graft();
-        myClassifier.setUnpruned(false);
-        myClassifier.setConfidenceFactor((float) 0.45);
-        myClassifier.setMinNumObj(2);
-        myClassifier.setBinarySplits(false);
-        myClassifier.setUseLaplace(true);
-        myClassifier.setRelabel(true);
-
+      } else if (error2 == least_error) {
         MultiClassClassifier cls = new MultiClassClassifier();
-        cls.setClassifier(myClassifier);
+        cls.setClassifier(new J48graft());
 
         // train
         Instances inst = null;
-        Instances inst1 = null;
         try {
           inst = new Instances(new BufferedReader(new FileReader(files[i + 1].getAbsolutePath())));
-          inst1 = new Instances(new BufferedReader(new FileReader(files[i].getAbsolutePath())));
         } catch (FileNotFoundException e1) {
           // TODO Auto-generated catch block
           e1.printStackTrace();
@@ -291,9 +238,7 @@ public class App3_0 {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
-
         inst.setClassIndex(inst.numAttributes() - 1);
-        inst1.setClassIndex(inst1.numAttributes() - 1);
 
         try {
           cls.buildClassifier(inst);
@@ -303,52 +248,23 @@ public class App3_0 {
         }
 
         try {
-          Evaluation eval = null;
-          eval = new Evaluation(inst);
-          eval.evaluateModel(cls, inst1);
-          PrintWriter writer1 = new PrintWriter(folderName
-                  + files[i].getName().toString().replace("_test.arff", "") + ".predict", "UTF-8");
-          for (int i1 = 0; i1 < inst1.numInstances(); i1++) {
-            long prediction = (long) cls.classifyInstance(inst1.instance(i1));
-            writer1.write(Long.toString(prediction) + "\n");
-          }
-          writer1.close();
+          System.out.println("=============== Best Error: " + error2
+                  + " from J48graft ===============\n\n");
+          weka.core.SerializationHelper.write(
+                  folderName + files[i].getName().toString().replace("_test.arff", "") + ".model",
+                  cls);
         } catch (Exception e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
-
-      }
-      for (int k = 0; k < errorC2.size(); k++) {
-        System.out.println("=============== Best Error: " + errorC2_original.get(k)
-                + " from J48graft ===============\n\n");
-        writer.println(errorC2_original.get(k) / errorNB.get(k));
-        errorC_errorNB.add(errorC2_original.get(k) / errorNB.get(k));
-      }
-    } else if (leastF1Score == f1ScoreC3) {
-      // output all models for this one
-      String folderName;
-      folderName = ("./model/");
-      File file = new File(folderName);
-      file.mkdir();
-      for (int i = 2; i < limit; i = i + 2) {
-
-        Decorate myClassifier = new Decorate();
-        RandomForest RFClassifier = new RandomForest();
-        myClassifier.setClassifier(RFClassifier);
-        myClassifier.setNumIterations(50);
-        myClassifier.setArtificialSize(1.0);
-        myClassifier.setDesiredSize(15);
-
+      } else if (error3 == least_error) {
         MultiClassClassifier cls = new MultiClassClassifier();
-        cls.setClassifier(myClassifier);
+        cls.setClassifier(new Decorate());
 
         // train
         Instances inst = null;
-        Instances inst1 = null;
         try {
           inst = new Instances(new BufferedReader(new FileReader(files[i + 1].getAbsolutePath())));
-          inst1 = new Instances(new BufferedReader(new FileReader(files[i].getAbsolutePath())));
         } catch (FileNotFoundException e1) {
           // TODO Auto-generated catch block
           e1.printStackTrace();
@@ -357,7 +273,6 @@ public class App3_0 {
           e1.printStackTrace();
         }
         inst.setClassIndex(inst.numAttributes() - 1);
-        inst1.setClassIndex(inst1.numAttributes() - 1);
 
         try {
           cls.buildClassifier(inst);
@@ -367,29 +282,19 @@ public class App3_0 {
         }
 
         try {
-          Evaluation eval = null;
-          eval = new Evaluation(inst);
-          eval.evaluateModel(cls, inst1);
-          PrintWriter writer1 = new PrintWriter(folderName
-                  + files[i].getName().toString().replace("_test.arff", "") + ".predict", "UTF-8");
-          for (int i1 = 0; i1 < inst1.numInstances(); i1++) {
-            long prediction = (long) cls.classifyInstance(inst1.instance(i1));
-            writer1.write(Long.toString(prediction) + "\n");
-          }
-          writer1.close();
+          System.out.println("=============== Best Error: " + error3
+                  + " from Decorate ===============\n\n");
+          weka.core.SerializationHelper.write(
+                  folderName + files[i].getName().toString().replace("_test.arff", "") + ".model",
+                  cls);
         } catch (Exception e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
-
-      }
-      for (int k = 0; k < errorC3_original.size(); k++) {
-        System.out.println("=============== Best Error: " + errorC3_original.get(k)
-                + " from Decorate ===============\n\n");
-        writer.println(errorC3_original.get(k) / errorNB.get(k));
-        errorC_errorNB.add(errorC3_original.get(k) / errorNB.get(k));
       }
 
+      writer.println(least_error / error_nb);
+      errorC_errorNB.add(least_error / error_nb);
     }
 
     double average = 0.0;
@@ -401,4 +306,30 @@ public class App3_0 {
     writer.print(errorC_errorNB.get(errorC_errorNB.size() - 1));
     writer.close();
   }
+
+  public static Instances[] partitionDataSetToSamples(Instances totalSet, int samples)
+          throws Exception {
+    Instances[] resampledInstances = new Instances[samples];
+    // User has provided a random number seed.
+    totalSet.randomize(new Random(1));
+    totalSet.setClassIndex(totalSet.numAttributes() - 1);
+    // Select out a fold
+    totalSet.stratify(samples);
+    for (int i = 0; i < samples; i++) {
+      resampledInstances[i] = totalSet.testCV(samples, i);
+    }
+    return resampledInstances;
+  }
+
+  public static int randInt(int min, int max) {
+    // Usually this can be a field rather than a method variable
+    Random rand = new Random();
+
+    // nextInt is normally exclusive of the top value,
+    // so add 1 to make it inclusive
+    int randomNum = rand.nextInt((max - min) + 1) + min;
+
+    return randomNum;
+  }
+
 }
