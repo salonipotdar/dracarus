@@ -12,20 +12,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
-import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.functions.Logistic;
-import weka.classifiers.functions.SMO;
 import weka.classifiers.meta.Decorate;
-import weka.classifiers.meta.LogitBoost;
 import weka.classifiers.meta.MultiClassClassifier;
-import weka.classifiers.meta.Stacking;
-import weka.classifiers.rules.DecisionTable;
 import weka.classifiers.trees.ADTree;
-import weka.classifiers.trees.FT;
 import weka.classifiers.trees.J48graft;
-import weka.classifiers.trees.LMT;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
@@ -244,7 +235,7 @@ public class App4b {
     System.out.println("ADTree: " + maxErrorC1 + "\tJ48graft: " + maxErrorC2 + "\tDecorate: "
             + maxErrorC3);
 
-    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2 + 1, f1ScoreC3 + 1));
+    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2, f1ScoreC3));
     if (leastF1Score == f1ScoreC1) {
       // output all models for this one
       String folderName;
@@ -253,8 +244,11 @@ public class App4b {
       file.mkdir();
       for (int i = 2; i < limit; i = i + 2) {
 
+        ADTree myClassifier = new ADTree();
+        myClassifier.setNumOfBoostingIterations(50);
+
         MultiClassClassifier cls = new MultiClassClassifier();
-        cls.setClassifier(new ADTree());
+        cls.setClassifier(myClassifier);
 
         // train
         Instances inst = null;
