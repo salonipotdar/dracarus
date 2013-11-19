@@ -14,12 +14,18 @@ import java.util.Random;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.functions.Logistic;
+import weka.classifiers.functions.SMO;
+import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.LogitBoost;
 import weka.classifiers.meta.MultiClassClassifier;
 import weka.classifiers.meta.Stacking;
+import weka.classifiers.rules.DecisionTable;
 import weka.classifiers.trees.ADTree;
 import weka.classifiers.trees.FT;
 import weka.classifiers.trees.J48graft;
+import weka.classifiers.trees.LMT;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
@@ -45,10 +51,8 @@ public class App4b {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
       ArffReader arff = new ArffReader(reader);
       trainData = arff.getData();
-      
+
       if (fileName.contains("splice")) {
-        System.out.println("Train: HAHAHAHAHA");
-        // MODIFIED BY SALONI
         // give the number of splits
         int noOfSplits = 5;
         // split the data
@@ -57,7 +61,7 @@ public class App4b {
         index = randInt(1, 4);
         trainData = trainDataSampled[index];
       }
-      
+
       System.out.println("===== Loaded train dataset: " + fileName + " =====");
       reader.close();
     } catch (IOException e) {
@@ -164,7 +168,7 @@ public class App4b {
 
       System.out.println("\n\n*********** ADTree Error: " + error1);
       System.out.println("*********** J48graft Error: " + error2);
-      System.out.println("*********** Stacking Error: " + error3);
+      System.out.println("*********** Decorate Error: " + error3);
       System.out.println("*********** NaiveBayes Error: " + error_nb);
 
       errorNB.add(error_nb);
@@ -211,14 +215,36 @@ public class App4b {
     double f1ScoreC2 = avgErrorC2;
     double f1ScoreC3 = avgErrorC3;
 
+    double errorC1_errorNB = 0.0;
+    double errorC2_errorNB = 0.0;
+    double errorC3_errorNB = 0.0;
+
+    for (int k = 0; k < errorC1.size(); k++) {
+      errorC1_errorNB += (errorC1_original.get(k) / errorNB.get(k));
+      errorC2_errorNB += (errorC2_original.get(k) / errorNB.get(k));
+      errorC3_errorNB += (errorC3_original.get(k) / errorNB.get(k));
+    }
+
+    System.out.println("\n========= Average Errors Ratio ==========\n");
+    System.out.println("ADTree: " + (errorC1_errorNB / errorC1.size()) + "\tJ48graft: "
+            + (errorC2_errorNB / errorC2.size()) + "\tDecorate: " + errorC3_errorNB
+            / errorC3.size());
+
+    /*
+     * System.out.println("\n========= Max Errors Ratio ==========\n");
+     * System.out.println("ADTree: " + maxErrorC1 + "\tJ48graft: " + maxErrorC2 + "\tStacking: " +
+     * maxErrorC3);
+     */
+    System.out.println("\n=======================================\n");
+
     System.out.println("\n========= Average Errors ==========\n");
-    System.out.println("ADTree: " + f1ScoreC1 + "\tJ48graft: " + f1ScoreC2 + "\tStacking: "
+    System.out.println("ADTree: " + f1ScoreC1 + "\tJ48graft: " + f1ScoreC2 + "\tDecorate: "
             + f1ScoreC3);
     System.out.println("\n========= Max Errors ==========\n");
-    System.out.println("ADTree: " + maxErrorC1 + "\tJ48graft: " + maxErrorC2 + "\tStacking: "
+    System.out.println("ADTree: " + maxErrorC1 + "\tJ48graft: " + maxErrorC2 + "\tDecorate: "
             + maxErrorC3);
 
-    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2, f1ScoreC3));
+    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2 + 1, f1ScoreC3 + 1));
     if (leastF1Score == f1ScoreC1) {
       // output all models for this one
       String folderName;
@@ -227,11 +253,8 @@ public class App4b {
       file.mkdir();
       for (int i = 2; i < limit; i = i + 2) {
 
-        ADTree myClassifier = new ADTree();
-        myClassifier.setNumOfBoostingIterations(50);
-
         MultiClassClassifier cls = new MultiClassClassifier();
-        cls.setClassifier(myClassifier);
+        cls.setClassifier(new ADTree());
 
         // train
         Instances inst = null;
@@ -271,7 +294,7 @@ public class App4b {
           eval = new Evaluation(inst);
           eval.evaluateModel(cls, inst1);
           PrintWriter writer1 = new PrintWriter(folderName
-                  + files[i].getName().toString().replace("_test.arff", "") + ".predict", "UTF-8");
+                  + files[i].getName().toString().replace("_test.arff", "") + "0.predict", "UTF-8");
           for (int i1 = 0; i1 < inst1.numInstances(); i1++) {
             long prediction = (long) cls.classifyInstance(inst1.instance(i1));
             writer1.write(Long.toString(prediction) + "\n");
@@ -362,31 +385,38 @@ public class App4b {
       file.mkdir();
       for (int i = 2; i < limit; i = i + 2) {
 
-        ADTree ATClassifier = new ADTree();
-        ATClassifier.setNumOfBoostingIterations(50);
-
-        RandomForest RFClassifier = new RandomForest();
-        J48graft J48Classifier = new J48graft();
-        FT FTClassifier = new FT();
-
-        Classifier[] classifierList = { J48Classifier, ATClassifier, RFClassifier, FTClassifier };
-
-        // Bagging BGClassifier = new Bagging();
-        LogitBoost LBClassifier = new LogitBoost();
-        LBClassifier.setShrinkage(0.5);
-        LBClassifier.setNumIterations(40);
-        LBClassifier.setWeightThreshold(95);
-
-        Stacking myClassifier = new Stacking();
-        myClassifier.setClassifiers(classifierList);
-        myClassifier.setMetaClassifier(LBClassifier);
-
         /*
-         * Decorate myClassifier = new Decorate(); ADTree RFClassifier = new ADTree(); //
-         * RandomForest RFClassifier = new RandomForest(); myClassifier.setClassifier(RFClassifier);
-         * myClassifier.setNumIterations(100); myClassifier.setArtificialSize(1.0);
-         * myClassifier.setDesiredSize(15);
+         * ADTree ATClassifier = new ADTree(); ATClassifier.setNumOfBoostingIterations(35);
+         * 
+         * J48graft J48Classifier = new J48graft(); RandomForest RFClassifier = new RandomForest();
+         * 
+         * FT FTClassifier = new FT(); //FTClassifier.setMinNumInstances(12);
+         * //FTClassifier.setWeightTrimBeta(0.06);
+         * 
+         * DecisionTable DTClassifier = new DecisionTable(); DTClassifier.setCrossVal(2);
+         * 
+         * NaiveBayes NBClassifier = new NaiveBayes(); Logistic LGClassifier = new Logistic();
+         * 
+         * SMO SMOClassifier = new SMO(); //SMOClassifier.setC(16.0);
+         * //SMOClassifier.setEpsilon(0.0000000000005);
+         * 
+         * Classifier[] classifierList = { ATClassifier, RFClassifier, FTClassifier, DTClassifier,
+         * NBClassifier, SMOClassifier, LGClassifier, J48Classifier };
+         * 
+         * // Bagging BGClassifier = new Bagging(); LogitBoost LBClassifier = new LogitBoost();
+         * LBClassifier.setShrinkage(0.5); LBClassifier.setNumIterations(40);
+         * LBClassifier.setWeightThreshold(95);
+         * 
+         * Stacking myClassifier = new Stacking(); myClassifier.setClassifiers(classifierList);
+         * myClassifier.setMetaClassifier(LBClassifier);
          */
+
+        Decorate myClassifier = new Decorate();
+        RandomForest RFClassifier = new RandomForest();
+        myClassifier.setClassifier(RFClassifier);
+        myClassifier.setNumIterations(50);
+        myClassifier.setArtificialSize(1.0);
+        myClassifier.setDesiredSize(15);
 
         MultiClassClassifier cls = new MultiClassClassifier();
         cls.setClassifier(myClassifier);
@@ -443,7 +473,7 @@ public class App4b {
       }
       for (int k = 0; k < errorC3_original.size(); k++) {
         System.out.println("=============== Best Error: " + errorC3_original.get(k)
-                + " from Stacking ===============\n\n");
+                + " from Decorate ===============\n\n");
         writer.println(errorC3_original.get(k) / errorNB.get(k));
         errorC_errorNB.add(errorC3_original.get(k) / errorNB.get(k));
       }

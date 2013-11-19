@@ -28,12 +28,8 @@ public class classifier14b {
       trainData.setClassIndex(trainData.numAttributes() - 1);
       testData.setClassIndex(testData.numAttributes() - 1);
 
-      ADTree myClassifier = new ADTree();
-      myClassifier.setNumOfBoostingIterations(50);
-
       classifier1 = new MultiClassClassifier();
-      classifier1.setClassifier(myClassifier);
-
+      classifier1.setClassifier(new ADTree());
       Evaluation eval = new Evaluation(trainData);
       eval.crossValidateModel(classifier1, trainData, 4, new Random(1));
       // System.out.println(eval.toSummaryString());
@@ -47,18 +43,12 @@ public class classifier14b {
 
   /**
    * This method trains the classifier on the loaded dataset.
-   * 
-   * @throws Exception
    */
-  public double learnADTree() throws Exception {
+  public double learnADTree() {
 
     // train classifier
-    ADTree myClassifier = new ADTree();
-    myClassifier.setNumOfBoostingIterations(50);
-
     MultiClassClassifier classifier1 = new MultiClassClassifier();
-    classifier1.setClassifier(myClassifier);
-
+    classifier1.setClassifier(new ADTree());
     try {
       classifier1.buildClassifier(trainData);
     } catch (Exception e) {

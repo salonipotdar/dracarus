@@ -1,14 +1,9 @@
 package f13_10601.project_dracarus;
 
 import weka.core.Instances;
-import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.meta.LogitBoost;
+import weka.classifiers.meta.Decorate;
 import weka.classifiers.meta.MultiClassClassifier;
-import weka.classifiers.meta.Stacking;
-import weka.classifiers.trees.ADTree;
-import weka.classifiers.trees.FT;
-import weka.classifiers.trees.J48graft;
 import weka.classifiers.trees.RandomForest;
 
 public class classifier34b {
@@ -26,14 +21,28 @@ public class classifier34b {
       trainData.setClassIndex(trainData.numAttributes() - 1);
       testData.setClassIndex(testData.numAttributes() - 1);
 
-      ADTree ATClassifier = new ADTree();
-      ATClassifier.setNumOfBoostingIterations(50);
+      /*ADTree ATClassifier = new ADTree();
+      ATClassifier.setNumOfBoostingIterations(35);
 
-      RandomForest RFClassifier = new RandomForest();
       J48graft J48Classifier = new J48graft();
+      RandomForest RFClassifier = new RandomForest();
+      
       FT FTClassifier = new FT();
+      //FTClassifier.setMinNumInstances(12);
+      //FTClassifier.setWeightTrimBeta(0.06);
+      
+      DecisionTable DTClassifier = new DecisionTable();
+      DTClassifier.setCrossVal(2);
+      
+      NaiveBayes NBClassifier = new NaiveBayes();
+      Logistic LGClassifier = new Logistic();
+      
+      SMO SMOClassifier = new SMO();
+      //SMOClassifier.setC(16.0);
+      //SMOClassifier.setEpsilon(0.0000000000005);
 
-      Classifier[] classifierList = { J48Classifier, ATClassifier, RFClassifier, FTClassifier };
+      Classifier[] classifierList = { ATClassifier, RFClassifier, FTClassifier,
+          DTClassifier, NBClassifier, SMOClassifier, LGClassifier, J48Classifier };
 
       // Bagging BGClassifier = new Bagging();
       LogitBoost LBClassifier = new LogitBoost();
@@ -43,15 +52,14 @@ public class classifier34b {
 
       Stacking myClassifier = new Stacking();
       myClassifier.setClassifiers(classifierList);
-      myClassifier.setMetaClassifier(LBClassifier);
+      myClassifier.setMetaClassifier(LBClassifier);*/
 
-      /*
-       * Decorate myClassifier = new Decorate();
-       * 
-       * ADTree RFClassifier = new ADTree(); // RandomForest RFClassifier = new RandomForest();
-       * myClassifier.setClassifier(RFClassifier); myClassifier.setNumIterations(100);
-       * myClassifier.setArtificialSize(1.0); myClassifier.setDesiredSize(15);
-       */
+      Decorate myClassifier = new Decorate();
+      RandomForest RFClassifier = new RandomForest();
+      myClassifier.setClassifier(RFClassifier);
+      myClassifier.setNumIterations(50);
+      myClassifier.setArtificialSize(1.0); 
+      myClassifier.setDesiredSize(15);
 
       classifier3 = new MultiClassClassifier();
       classifier3.setClassifier(myClassifier);
@@ -66,14 +74,28 @@ public class classifier34b {
 
   public double learnDecorate() throws Exception {
 
-    ADTree ATClassifier = new ADTree();
-    ATClassifier.setNumOfBoostingIterations(50);
+    /*ADTree ATClassifier = new ADTree();
+    ATClassifier.setNumOfBoostingIterations(35);
 
-    RandomForest RFClassifier = new RandomForest();
     J48graft J48Classifier = new J48graft();
+    RandomForest RFClassifier = new RandomForest();
+    
     FT FTClassifier = new FT();
+    //FTClassifier.setMinNumInstances(12);
+    //FTClassifier.setWeightTrimBeta(0.06);
+    
+    DecisionTable DTClassifier = new DecisionTable();
+    DTClassifier.setCrossVal(2);
+    
+    NaiveBayes NBClassifier = new NaiveBayes();
+    Logistic LGClassifier = new Logistic();
+    
+    SMO SMOClassifier = new SMO();
+    //SMOClassifier.setC(16.0);
+    //SMOClassifier.setEpsilon(0.0000000000005);
 
-    Classifier[] classifierList = { J48Classifier, ATClassifier, RFClassifier, FTClassifier };
+    Classifier[] classifierList = { ATClassifier, RFClassifier, FTClassifier,
+        DTClassifier, NBClassifier, SMOClassifier, LGClassifier, J48Classifier };
 
     // Bagging BGClassifier = new Bagging();
     LogitBoost LBClassifier = new LogitBoost();
@@ -83,15 +105,14 @@ public class classifier34b {
 
     Stacking myClassifier = new Stacking();
     myClassifier.setClassifiers(classifierList);
-    myClassifier.setMetaClassifier(LBClassifier);
+    myClassifier.setMetaClassifier(LBClassifier);*/
 
-    /*
-     * // train classifier Decorate myClassifier = new Decorate();
-     * 
-     * ADTree RFClassifier = new ADTree(); // RandomForest RFClassifier = new RandomForest();
-     * myClassifier.setClassifier(RFClassifier); myClassifier.setNumIterations(100);
-     * myClassifier.setArtificialSize(1.0); myClassifier.setDesiredSize(15);
-     */
+    Decorate myClassifier = new Decorate();
+    RandomForest RFClassifier = new RandomForest();
+    myClassifier.setClassifier(RFClassifier);
+    myClassifier.setNumIterations(50);
+    myClassifier.setArtificialSize(1.0); 
+    myClassifier.setDesiredSize(15);
 
     classifier3 = new MultiClassClassifier();
     classifier3.setClassifier(myClassifier);
