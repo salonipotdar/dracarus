@@ -31,10 +31,13 @@ public class classifier25 {
       filter = new StringToWordVector();
       filter.setAttributeIndices("last");
 
+      // Bagging BGClassifier = new Bagging();
+
       LogitBoost LBClassifier = new LogitBoost();
       LBClassifier.setShrinkage(0.5);
       LBClassifier.setNumIterations(40);
       LBClassifier.setWeightThreshold(96);
+
       // myClassifier.setNumOfBoostingIterations(61);
 
       /*
@@ -66,10 +69,13 @@ public class classifier25 {
    */
   public double learnJ48graft() throws Exception {
 
+    // Bagging BGClassifier = new Bagging();
+
     LogitBoost LBClassifier = new LogitBoost();
     LBClassifier.setShrinkage(0.5);
     LBClassifier.setNumIterations(40);
     LBClassifier.setWeightThreshold(96);
+
     // myClassifier.setNumOfBoostingIterations(61);
 
     /*

@@ -28,6 +28,11 @@ public class classifier15 {
       trainData.setClassIndex(trainData.numAttributes() - 1);
       testData.setClassIndex(testData.numAttributes() - 1);
 
+      /*
+       * AdaBoostM1 ABClassifier = new AdaBoostM1(); J48 J48Classifier = new J48();
+       * J48Classifier.setConfidenceFactor((float) 0.50); ABClassifier.setClassifier(J48Classifier);
+       */
+
       RandomForest myClassifier = new RandomForest();
       /*
        * ADTree myClassifier = new ADTree(); myClassifier.setNumOfBoostingIterations(61);
@@ -53,6 +58,11 @@ public class classifier15 {
   public double learnADTree() {
 
     // train classifier
+    /*
+     * AdaBoostM1 ABClassifier = new AdaBoostM1(); J48 J48Classifier = new J48();
+     * J48Classifier.setConfidenceFactor((float) 0.50); ABClassifier.setClassifier(J48Classifier);
+     */
+
     RandomForest myClassifier = new RandomForest();
     /*
      * ADTree myClassifier = new ADTree(); myClassifier.setNumOfBoostingIterations(61);

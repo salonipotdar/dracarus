@@ -93,7 +93,7 @@ public class App5 {
 
     App5 app_obj = new App5();
 
-    File XMLDirectory = new File("./data_rand_split_b_nolabel/");
+    File XMLDirectory = new File("./dataout/");
     File[] files = XMLDirectory.listFiles();
     Arrays.sort(files);
 
@@ -241,7 +241,7 @@ public class App5 {
     System.out.println("Untuned RandomForest: " + maxErrorC1 + "\tTuned LogitBoost: " + maxErrorC2
             + "\tTuned Vote: " + maxErrorC3);
 
-    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2+1, f1ScoreC3+1));
+    double leastF1Score = Math.min(f1ScoreC1, Math.min(f1ScoreC2 + 1, f1ScoreC3 + 1));
     if (leastF1Score == f1ScoreC1) {
       // output all models for this one
       String folderName;
@@ -249,6 +249,12 @@ public class App5 {
       File file = new File(folderName);
       file.mkdir();
       for (int i = 1; i < limit; i = i + 2) {
+
+        /*
+         * AdaBoostM1 myClassifier = new AdaBoostM1(); J48 J48Classifier = new J48();
+         * J48Classifier.setConfidenceFactor((float) 0.50);
+         * myClassifier.setClassifier(J48Classifier);
+         */
 
         RandomForest myClassifier = new RandomForest();
         /*
@@ -322,6 +328,8 @@ public class App5 {
       file.mkdir();
       // output all models for this one
       for (int i = 1; i < limit; i = i + 2) {
+
+        // Bagging myClassifier = new Bagging();
 
         LogitBoost myClassifier = new LogitBoost();
         myClassifier.setShrinkage(0.5);
